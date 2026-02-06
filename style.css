@@ -105,7 +105,7 @@ canvas {
   color: #ff6f91;
   font-size: 2.6rem;
   text-align: center;
-  margin: 0 0 6px; /* reduced gap below title */
+  margin: 20px 0 6px; /* nice top breathing room */
 }
 
 .subtitle2 {
@@ -161,7 +161,7 @@ canvas {
 }
 
 .love-note {
-  margin-top: 18px; /* reduced gap after carousel */
+  margin-top: 8px; /* tight gap after wishes */
   font-size: 1.3rem;
   color: #ff3366;
   text-align: center;
@@ -177,6 +177,33 @@ canvas {
   padding: 10px 0; /* slightly less vertical padding */
 }
 
+/* Birthday wishes block */
+.birthday-wishes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px;
+}
+.birthday-wishes .wish {
+  background: linear-gradient(90deg, rgba(255,255,255,0.95), rgba(255,249,240,0.95));
+  padding: 10px 14px;
+  border-radius: 12px;
+  color: #333;
+  font-size: 1.05rem;
+  font-weight: 600;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  transform: translateY(6px) scale(0.995);
+  opacity: 0;
+  animation: wishIn 520ms cubic-bezier(.2,.8,.2,1) forwards;
+  animation-delay: var(--delay, 0ms);
+}
+@keyframes wishIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 .carousel .viewport {
   overflow: hidden;
   width: 100%;
@@ -187,6 +214,7 @@ canvas {
   gap: 16px;
   align-items: center;
   transition: transform 520ms cubic-bezier(.2,.8,.2,1);
+  transition: transform 1100ms cubic-bezier(0.22,0.8,0.22,1);
   will-change: transform;
   padding: 0 6%; /* reduced side padding to tighten before/after image gaps */
 }
@@ -198,7 +226,8 @@ canvas {
   border-radius: 16px;
   overflow: hidden;
   position: relative;
-  transition: transform 360ms ease, filter 360ms ease, opacity 360ms ease;
+  transform-origin: center center;
+  transition: transform 1100ms cubic-bezier(0.22,0.8,0.22,1), filter 720ms ease, opacity 720ms ease, height 720ms ease, flex-basis 720ms ease;
 }
 
 .carousel .item img {
@@ -209,22 +238,45 @@ canvas {
 }
 
 .carousel .item.inactive {
-  transform: scale(0.9);
-  filter: blur(3px) saturate(0.9) brightness(0.94);
-  opacity: 0.85;
+  transform: scale(0.92);
+  filter: blur(3px) saturate(0.92) brightness(0.95);
+  opacity: 0.86;
 }
 
 .carousel .item.active {
-  transform: scale(1.04);
+  transform: scale(1.08);
   filter: none;
   opacity: 1;
 }
 
+/* Portrait vs Landscape handling */
+.carousel .item.landscape { flex: 0 0 60vw; height: 62vh; }
+.carousel .item.portrait { flex: 0 0 40vw; height: 80vh; }
+
+.carousel .item.portrait img { object-fit: contain; background: #000; }
+.carousel .item.landscape img { object-fit: cover; }
+
+.carousel .item.portrait.active { transform: scale(1.06); }
+
+/* subtle entrance animation */
+@keyframes popIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.carousel .item { animation: popIn 420ms ease both; }
+
 @media (max-width: 900px) {
   .carousel .track { padding: 0 6%; }
-  .carousel .item { flex: 0 0 80vw; height: 50vh; }
+  .carousel .item.landscape { flex: 0 0 80vw; height: 50vh; }
+  .carousel .item.portrait { flex: 0 0 72vw; height: 60vh; }
 }
 
 @media (max-width: 480px) {
-  .carousel .item { flex: 0 0 92vw; height: 40vh; }
+  .carousel .item.landscape { flex: 0 0 92vw; height: 40vh; }
+  .carousel .item.portrait { flex: 0 0 92vw; height: 56vh; }
 }
+
+/* Heading fonts & little flourish */
+h1 { font-family: 'Dancing Script', cursive; }
+.title2 { font-family: 'Playfair Display', serif; }
+

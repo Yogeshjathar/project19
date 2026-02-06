@@ -4,6 +4,13 @@ function goNext() {
 
   document.getElementById('page2').style.opacity = '1';
   document.getElementById('page2').style.transform = 'translateY(0)';
+
+  // play background music
+  const bgMusic = document.getElementById('bgMusic');
+  if (bgMusic) {
+    bgMusic.volume = 0.5; // set volume to 50%
+    bgMusic.play().catch(err => console.log('Audio play failed:', err));
+  }
 }
 
 /* Sparkle Animation */
@@ -86,7 +93,23 @@ animate();
     let attempt = 0;
     img.alt = `photo ${idx+1}`;
 
-    img.onload = () => { loadedCount++; };
+    img.onload = () => {
+      loadedCount++;
+      // detect orientation and tag the item so CSS can swap width/height
+      try {
+        if (img.naturalWidth && img.naturalHeight) {
+          if (img.naturalHeight > img.naturalWidth) {
+            item.classList.add('portrait');
+            item.classList.remove('landscape');
+          } else {
+            item.classList.add('landscape');
+            item.classList.remove('portrait');
+          }
+        }
+      } catch (e) {}
+      // re-center after image loads in case sizes changed
+      setTimeout(() => { update(); }, 60);
+    };
     img.onerror = () => {
       attempt++;
       if (attempt < candidates.length) {
@@ -114,9 +137,18 @@ animate();
     if (active < 0) active = 0;
     if (active > nodes.length - 1) active = nodes.length - 1;
 
+    // fixed graceful zoom & subtle focus shift for incoming image
+    const activeScale = 1.08;
+    const inactiveScale = 0.92;
+    const shiftPx = -10;
+
     nodes.forEach((n, i) => {
-      n.classList.toggle('active', i === active);
-      n.classList.toggle('inactive', i !== active);
+      const isActive = i === active;
+      n.classList.toggle('active', isActive);
+      n.classList.toggle('inactive', !isActive);
+      const scale = isActive ? activeScale : inactiveScale;
+      const ty = isActive ? `${shiftPx}px` : '0px';
+      n.style.transform = `scale(${scale}) translateY(${ty})`;
     });
 
     // center active item in viewport
@@ -131,12 +163,13 @@ animate();
   }
 
   // wait a tick for images to load then clamp active to middle
+  // choose middle after a short wait so orientation classes apply
   setTimeout(() => {
     const nodes = items();
     if (!nodes.length) return;
     active = Math.floor(nodes.length / 2);
     update();
-  }, 350);
+  }, 700);
 
   // keyboard navigation
   document.addEventListener('keydown', (e) => {
@@ -152,7 +185,7 @@ animate();
     viewportEl.addEventListener('mouseleave', () => { isPaused = false; });
   }
 
-  let autoplayDelay = 3000;
+  let autoplayDelay = 2000; // slightly faster auto-slide
   let autoplayTimer = null;
   function startAutoplay() {
     if (autoplayTimer) clearInterval(autoplayTimer);
